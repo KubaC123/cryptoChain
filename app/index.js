@@ -25,4 +25,5 @@ app.post('/mine', (request, response) => {
 });
 
 app.listen(HTTP_PORT, () => console.log(`listening on port ${HTTP_PORT}`));
-p2pServer.listen();
+
+p2pServer.listen(); // starts the websocket server in this application instance
