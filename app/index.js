@@ -2,26 +2,45 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Blockchain = require('../blockChain');
 const P2Pserver = require('./p2p-server');
+const Wallet = require('../wallet');
+const TtransactionPool = require('../wallet/transaction-pool');
 
 const HTTP_PORT = process.env.HTTP_PORT || 3001; // user can specify port on the command line
 
 const app = express();
 const bc = new Blockchain();
-const p2pServer = new P2Pserver(bc);
+const wallet = new Wallet();
+const tp = new TtransactionPool();
+const p2pServer = new P2Pserver(bc, tp);
 
 app.use(bodyParser.json()); // allows to recieve json within post request
 
-app.get('/blocks', (request, response) =>{
-    response.json(bc.chain);
+app.get('/blocks', (req, res) =>{
+    res.json(bc.chain);
 });
 
-app.post('/mine', (request, response) => {
-    const block = bc.addBlock(request.body.data);
+app.post('/mine', (req, res) => {
+    const block = bc.addBlock(req.body.data);
     console.log(`new block added: ${block.toString()}`);
 
     p2pServer.syncChain();
 
-    response.redirect('/blocks');
+    res.redirect('/blocks');
+});
+
+app.get('/transactions', (req, res) => {
+    res.json(tp.transactions);
+});
+
+app.post('/transact', (req, res) => {
+    const { recipient, amount } = req.body;
+    const transaction = wallet.createTransaction(recipient, amount, tp);
+    p2pServer.broadcastTransaction(transaction);
+    res.redirect('/transactions'); // see new transaction
+});
+
+app.get('/public-key', (req, res) => {
+    res.json({ publicKey: wallet.publicKey });
 });
 
 app.listen(HTTP_PORT, () => console.log(`listening on port ${HTTP_PORT}`));

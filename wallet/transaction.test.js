@@ -4,7 +4,7 @@ const Wallet = require('./index');
 describe('Transaction', () => {
     let transaction, wallet, recipient, amount;
 
-    beforeEach( ()=> {
+    beforeEach(()=> {
         wallet = new Wallet();
         amount = 50;
         recipient = 'dude';
@@ -45,7 +45,7 @@ describe('Transaction', () => {
 
     describe('updates a transaction', () => {
         let nextAmount, nextRecipient;
-        beforeEach( () => {
+        beforeEach(() => {
             nextAmount = 20;
             nextRecipient = 'n3xt-a44res5';
             transaction = transaction.update(wallet, nextRecipient, nextAmount);
